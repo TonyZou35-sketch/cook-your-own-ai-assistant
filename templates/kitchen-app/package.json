@@ -1,0 +1,15 @@
+{
+  "name": "my-kitchen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A home-cooked AI assistant: one kitchen, one dish per need, running on local models.",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "serve": "node server/main.mjs --port=7700",
+    "test": "node --test test/"
+  },
+  "devDependencies": {
+    "electron": "44.7.0"
+  }
+}

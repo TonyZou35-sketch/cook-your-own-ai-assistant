@@ -1,0 +1,12 @@
+.voice-step { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.voice-step h2 { margin: 0; }
+.step { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: var(--accent-soft); color: var(--accent); flex: none; }
+.step.done { background: rgba(63, 125, 88, .14); color: var(--ok); }
+.voice-sentence { font-size: 22px; line-height: 1.45; margin: 16px 0 8px; font-weight: 500; }
+.voice-meter { width: 120px; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.voice-meter i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .08s; }
+.btn.recording { background: var(--bad); border-color: var(--bad); }
+.voice-status { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.voice-status audio, .voice-clip audio { width: 100%; max-width: 460px; height: 36px; margin: 6px 0; }
+.voice-bad { color: var(--bad); margin: 0; }
+.voice-text { white-space: pre-wrap; }
