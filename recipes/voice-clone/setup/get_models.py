@@ -59,7 +59,12 @@ def main():
         print(f'  {mb:4d} MB  {what}  ({state})')
     print(f'  English pronunciation list: {"already here" if lex_out.exists() else "unpacked from this recipe"}')
     if not go:
-        print(f'\nAbout {sum(t[2] for t in todo)} MB to download. Run again with --yes to download.')
+        if todo:
+            print(f'\nAbout {sum(t[2] for t in todo)} MB to download. Run again with --yes to download.')
+        elif not lex_out.exists():
+            print('\nNothing to download. Run again with --yes to unpack the pronunciation list.')
+        else:
+            print('\nEverything is in place.')
         return
     models.mkdir(parents=True, exist_ok=True)
     for what, url, mb, name in todo:

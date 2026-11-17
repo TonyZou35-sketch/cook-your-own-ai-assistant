@@ -84,7 +84,7 @@ function startWorker() {
 
 async function ask(msg, progress) {
   const st = setupStatus();
-  if (!st.ready) throw new Error(`The voice dish is not set up yet. Missing: ${st.missing.join(', ')}`);
+  if (!st.ready) k.fail(`The voice dish is not set up yet. Missing: ${st.missing.join(', ')}`, 409);
   clearTimeout(idle);
   if (!worker) worker = startWorker();
   const w = worker;
@@ -151,10 +151,16 @@ export default {
     k.route('POST', '/reference', async ({ raw, query }) => {
       const lang = query.lang === 'zh' ? 'zh' : 'en';
       const buf = await raw();
-      if (buf.length < 1000 || buf.toString('ascii', 0, 4) !== 'RIFF') throw new Error('Please record again, or upload a WAV file.');
+      if (buf.length < 1000 || buf.toString('ascii', 0, 4) !== 'RIFF') k.fail('Please record again, or upload a WAV file.');
       const tmp = path.join(dir(), 'reference-new.wav');
       fs.writeFileSync(tmp, buf);
-      const heard = await ask({ op: 'hear', file: tmp, lang, trim: true });
+      let heard;
+      try {
+        heard = await ask({ op: 'hear', file: tmp, lang, trim: true });
+      } catch (e) {
+        fs.rmSync(tmp, { force: true });
+        throw e;
+      }
       const score = similar(CONSENT[lang], heard.text);
       if (heard.sec < 3) { fs.rmSync(tmp, { force: true }); return { ok: false, heard: heard.text, match: score, message: 'That was too short. Read the whole sentence, at a normal pace.' }; }
       if (score < 0.6) { fs.rmSync(tmp, { force: true }); return { ok: false, heard: heard.text, match: score, message: 'I couldn’t hear the sentence clearly. Try again in a quiet place, a little closer to the microphone.' }; }
@@ -168,7 +174,7 @@ export default {
     });
 
     k.route('GET', '/reference.wav', ({ res }) => {
-      if (!fs.existsSync(refFile())) throw new Error('No recording yet');
+      if (!fs.existsSync(refFile())) k.fail('No recording yet', 404);
       res.writeHead(200, { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' });
       fs.createReadStream(refFile()).pipe(res);
     });
@@ -183,10 +189,11 @@ export default {
     k.route('POST', '/say', async ({ body }) => {
       const { text } = await body();
       const t = String(text || '').trim().slice(0, 5000);
-      if (!t) throw new Error('Type something for your voice to say.');
+      if (!t) k.fail('Type something for your voice to say.');
       const ref = refInfo();
-      if (!ref || !fs.existsSync(refFile())) throw new Error('Record your voice first.');
-      const id = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+      if (!ref || !fs.existsSync(refFile())) k.fail('Record your voice first.');
+      // to the millisecond, so two quick requests never share a file name
+      const id = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 17);
       const out = path.join(clipsDir(), `${id}-ai-voice.wav`);
       return k.jobs.start({
         title: `Reading in your voice: “${t.slice(0, 40)}${t.length > 40 ? '…' : ''}”`,
@@ -205,7 +212,7 @@ export default {
 
     k.route('GET', '/clips/:file', ({ params, res, query }) => {
       const f = path.join(clipsDir(), path.basename(params.file));
-      if (!f.endsWith('.wav') || !fs.existsSync(f)) throw new Error('Not found');
+      if (!f.endsWith('.wav') || !fs.existsSync(f)) k.fail('Not found', 404);
       const headers = { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' };
       if (query.download) headers['Content-Disposition'] = `attachment; filename="${path.basename(f)}"`;
       res.writeHead(200, headers);

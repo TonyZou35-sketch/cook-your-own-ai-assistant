@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { broadcast, notify } from './events.mjs';
-import { route } from './http.mjs';
+import { HttpError, route } from './http.mjs';
 import { startJob, listJobs } from './jobs.mjs';
 import * as memory from './memory.mjs';
 import { chat, modelStatus } from './model.mjs';
@@ -30,6 +30,8 @@ function toolsFor(id) {
     modelsDir: MODELS_DIR,
     dishDir: path.join(APP_DIR, 'dishes', id),
     route: (method, sub, handler) => route(method, `/api/${id}${sub === '/' ? '' : sub}`, handler),
+    // stop a request with a message for the person (not a bug: no stack trace in the log)
+    fail: (message, status = 400) => { throw new HttpError(status, message); },
     settings: () => getSettings().dishes?.[id] || {},
     saveSettings: (fn) => updateSettings((s) => {
       s.dishes = s.dishes || {};

@@ -38,6 +38,7 @@ The tools a dish gets in `setup(k)`:
 | Tool | Use it for |
 |---|---|
 | `k.route(method, path, handler)` | `/api/<id>/...` endpoints for the page |
+| `k.fail(message)` | stop a request with a message the page shows the person (bad input, not set up yet) |
 | `k.jobs.start({ title, run, done })` | anything slow; `run(ctx)` gets `ctx.progress()` and `ctx.signal` |
 | `k.model.chat({ messages, ... })` | the local model; stream, keep prompts short, ask for line formats |
 | `k.memory.propose(text)` | suggest something to remember (never writes memory directly) |
