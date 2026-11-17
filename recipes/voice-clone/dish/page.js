@@ -53,7 +53,7 @@ export default {
       try {
         const r = await api(`/api/voice/reference?lang=${lang}`, { method: 'POST', raw: blob, headers: { 'Content-Type': 'audio/wav' } });
         if (!r.ok) {
-          status.replaceChildren(h('p', { class: 'voice-bad' }, r.message), r.heard ? h('p', { class: 'muted small' }, `I heard: “${r.heard}”`) : null);
+          status.replaceChildren(h('p', { class: 'voice-bad' }, r.message), h('p', { class: 'muted small' }, r.heard ? `I heard: “${r.heard}”` : 'I didn’t hear any words.'));
           return;
         }
         toast('Got it. That’s your voice now.', 'ok');

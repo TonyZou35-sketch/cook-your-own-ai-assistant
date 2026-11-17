@@ -11,6 +11,7 @@ const RULES = [
   ['Steps that can’t be undone are your click.', 'Send, submit, pay, publish, delete: the kitchen prepares, you press.'],
   ['When unsure, it asks.', 'Questions wait on the home page instead of guesses.'],
   ['Your data stays on this computer.', 'Dishes use the AI model on this machine only.'],
+  ['On other people’s sites, it reads and prepares.', 'It doesn’t act for you in bulk, and it follows each site’s rules.'],
   ['What the AI made is labelled.', 'A cloned voice or a draft always says so.'],
 ];
 
@@ -148,12 +149,13 @@ async function memory() {
       h('button', { class: 'btn ghost small', onclick: async () => { await api(`/api/memory/${i.id}`, { method: 'DELETE' }); memory(); } }, i.status === 'pending' ? 'Drop' : 'Forget'));
   };
 
-  page.replaceChildren(
+  // (replaceChildren would print a null as the text "null", so leave it out instead)
+  page.replaceChildren(...[
     h('header', { class: 'hello' }, h('h1', {}, 'Memory'), h('p', { class: 'muted' }, 'What your assistant knows about you. Dishes can only suggest; nothing is kept until you say yes.')),
     pending.length ? h('section', { class: 'card accent' }, h('h2', {}, `Suggestions (${pending.length})`), h('div', { class: 'list' }, pending.map(itemRow))) : null,
     h('section', { class: 'card' }, h('h2', {}, 'Tell it something'), h('div', { class: 'inline' }, input, h('button', { class: 'btn', onclick: add }, 'Remember'))),
     h('section', { class: 'card' }, h('h2', {}, `Remembered (${kept.length})`), kept.length ? h('div', { class: 'list' }, kept.map(itemRow)) : h('p', { class: 'muted' }, 'Nothing yet.')),
-  );
+  ].filter(Boolean));
   refreshBadges();
 }
 

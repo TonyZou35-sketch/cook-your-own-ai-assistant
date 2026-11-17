@@ -52,6 +52,8 @@ question the dish has for the person.
 
 The page gets `kit = { h, api, on, toast, when, dish }`. `api()` adds the header the server
 requires; `on('changed', fn)` listens to the dish's broadcasts, `on('jobs', fn)` to job progress.
+`h()` skips `null` children, but the browser's own `replaceChildren()` and `append()` don't: a `null`
+there shows up on the page as the word "null". Filter the list first.
 Look at `recipes/voice-clone/dish/` for a complete example: a worker process, a job with progress,
 a page with three steps.
 
